@@ -1,29 +1,65 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://opengraphprotocol.org/schema/" xmlns:fb="http:// developers.facebook.com/schema/">
+<html lang="en">
 	<head>
+		<title id="page_title">LuckyDawgs</title>
 		<link rel="icon" href="favicon.ico" type="image/x-icon" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7, IE=9" />
-		<meta http-equiv="Content-Language" content="de" />
+		<!-- TODO: Update metadata -->
 		<meta name="author" content="Geronimo Stade" />
 		<meta name="copyright" content="Geronimo Stade 2024" />
 		<meta name="robots" content="index, folL, noarchive" />
-		<title id="page_title">LuckyDawgs</title>
-		<meta name="keywords" content="programming tutorials electronics pcb design songwriting audio design" />
-		<meta id="page_content" name="description" content="This website contains hot stuff!" />
-		<link rel="stylesheet" href="./css/main.css?time=1719472696" type="text/css" media="screen">
-		<script type="text/javascript" src="./js/jquery.js"></script>
-		<link rel="stylesheet" href="./css/jq.css">
-		<script type="text/javascript" src="./js/ui.js"></script>
-		<script type="text/javascript" src="./js/main.js?time=1719472696"></script>
+		<link rel="stylesheet" href="./static/_libs/jquery-ui.css">
+		<script type="text/javascript" src="./static/_libs/jquery.js"></script>
+		<script type="text/javascript" src="./static/_libs/jquery-ui.js"></script>
+		<link rel="stylesheet" href="./static/main.css?time=1719441417" type="text/css" media="screen">
+		<script type="text/javascript" src="./static/main.js?time=1719441417"></script>
+
+		<style>
+			.hidden {
+				display: none !important;
+			}
+
+			a, b, strong {
+				color: #990033;
+			}
+
+			table#gameinfo td {
+				padding: 3px;
+			}
+
+			table#warnings {
+				/*display: block;*/
+			}
+			table#teaminfo {
+
+			}
+			table#teaminfo th, table#teaminfo td,
+			table#players th, table#players td {
+				padding: 5px;
+			}
+			table#teaminfo td {
+				vertical-align: top;
+			}
+			table#teaminfo tr[data-team='t'] td,
+			table#players tr[data-team='t'] td {
+				color: #ff0000;
+			}
+			table#teaminfo tr[data-team='ct'] td,
+			table#players tr[data-team='ct'] td {
+				color: #0055ff;
+			}
+			table#players tr.dead {
+				color: #aaa !important;
+			}
+		</style>
 	</head>
-	<body onresize="">
+	<body>
 		<div id="header">
 			<div class="floating">
 				<div class="headertable">
-					<b style="color:#990033;">Server to query</b>
+					<b>Server to query</b>
+					<!-- TODO: Wrap controls with <form> -->
 					<table>
 						<tr>
 							<td>Server IP</td>
@@ -38,34 +74,41 @@
 						<tr>
 							<td>Query Timeout</td>
 							<td>:</td>
-							<td><input type="text" value="1" placeholder="timeout" id="queryTimeout"></td>
+							<td><input type="number" min="1" max="10" value="1" placeholder="timeout" id="queryTimeout"></td>
 						</tr>
 						<tr>
 							<td>Query</td>
 							<td>:</td>
-							<td><button type="text" onclick="KeyUpInput('https://serverstatus.tacops.de/index.php');">Start</button></td>
+							<td><button onclick="PageUrl.update('https://serverstatus.tacops.de/index.php');" id="querySubmitBtn">Start</button></td>
 						</tr>
 					</table>
 				</div>
 				<div class="headerinfo">
-					<img id="loading" src="./img/Search.gif" style="display:none;">
+					<img id="loader" src="./static/img/search.gif" class="hidden">
 				</div>
 			</div>
+
 			<div class="floatingsmall">
-				<b style="color:#990033;">Gameinfo</b>
+				<b>Gameinfo</b>
 				<table id="gameinfo"></table>
 			</div>
+
 			<div class="clear"></div>
 		</div>
-		<div id="warnings"></div>
+
+		<div id="warnings" class="hidden"></div>
+
 		<div class="maincontainer">
-			<div class="floating" class="extended">
-				<b style="color:#990033;">Playerinfo</b>
+			<div class="floating">
+				<b>Playerinfo</b>
 				<table id="players"></table>
 			</div>
-			<div class="floatingsmall"><b style="color:#990033;">Teaminfo</b>
+
+			<div class="floatingsmall">
+				<b>Teaminfo</b>
 				<table id="teaminfo"></table>
 			</div>
+
 			<div class="clear"></div>
 		</div>
 	</body>

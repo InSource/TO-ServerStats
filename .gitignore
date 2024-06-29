@@ -1,0 +1,7 @@
+# OS generated staff
+.DS_Store
+Thumbs.db
+
+# Editors
+.obsidian/
+.idea/
