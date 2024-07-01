@@ -8,108 +8,59 @@
 		<!-- TODO: Update metadata -->
 		<meta name="author" content="Geronimo Stade" />
 		<meta name="copyright" content="Geronimo Stade 2024" />
-		<meta name="robots" content="index, folL, noarchive" />
-		<link rel="stylesheet" href="./static/_libs/jquery-ui.css">
-		<script type="text/javascript" src="./static/_libs/jquery.js"></script>
-		<script type="text/javascript" src="./static/_libs/jquery-ui.js"></script>
-		<link rel="stylesheet" href="./static/main.css?time=1719441417" type="text/css" media="screen">
-		<script type="text/javascript" src="./static/main.js?time=1719441417"></script>
-
-		<style>
-			.hidden {
-				display: none !important;
-			}
-
-			a, b, strong {
-				color: #990033;
-			}
-
-			table#gameinfo td {
-				padding: 3px;
-			}
-
-			table#warnings {
-				/*display: block;*/
-			}
-			table#teaminfo {
-
-			}
-			table#teaminfo th, table#teaminfo td,
-			table#players th, table#players td {
-				padding: 5px;
-			}
-			table#teaminfo td {
-				vertical-align: top;
-			}
-			table#teaminfo tr[data-team='t'] td,
-			table#players tr[data-team='t'] td {
-				color: #ff0000;
-			}
-			table#teaminfo tr[data-team='ct'] td,
-			table#players tr[data-team='ct'] td {
-				color: #0055ff;
-			}
-			table#players tr.dead {
-				color: #aaa !important;
-			}
-		</style>
+<!--		<link rel="stylesheet" href="./static/_libs/jquery-ui.css">-->
+<!--		<script type="text/javascript" src="./static/_libs/jquery.js"></script>-->
+<!--		<script type="text/javascript" src="./static/_libs/jquery-ui.js"></script>-->
+		<script type="text/javascript" src="./static/_libs/ejs-3.1.10.min.js"></script>
+		<link rel="stylesheet" href="./static/main.css" type="text/css" media="screen">
+		<script type="text/javascript" src="./static/main.js"></script>
 	</head>
 	<body>
-		<div id="header">
-			<div class="floating">
-				<div class="headertable">
+		<section id="header">
+			<div id="search" class="flex-row-nowrap flex-3">
+				<div>
 					<b>Server to query</b>
-					<!-- TODO: Wrap controls with <form> -->
-					<table>
-						<tr>
-							<td>Server IP</td>
-							<td>:</td>
-							<td><input type="text" value="81.169.138.37" placeholder="ip" id="queryIP"></td>
-						</tr>
-						<tr>
-							<td>Server Port</td>
-							<td>:</td>
-							<td><input type="text" value="9777" placeholder="port" id="queryPort"></td>
-						</tr>
-						<tr>
-							<td>Query Timeout</td>
-							<td>:</td>
-							<td><input type="number" min="1" max="10" value="1" placeholder="timeout" id="queryTimeout"></td>
-						</tr>
-						<tr>
-							<td>Query</td>
-							<td>:</td>
-							<td><button onclick="PageUrl.update('https://serverstatus.tacops.de/index.php');" id="querySubmitBtn">Start</button></td>
-						</tr>
-					</table>
+					<form id="queryForm">
+						<label>
+							<span>Server IP</span>:
+							<input type="text" placeholder="ip" name="ip">
+						</label>
+						<label>
+							<span>Server Port</span>:
+							<input type="text" placeholder="port" name="port">
+						</label>
+						<label>
+							<span>Query Timeout</span>:
+							<input type="number" min="1" max="10" placeholder="timeout" name="timeout">
+						</label>
+						<label>
+							<span>Query</span>:
+							<button type="submit">Start</button>
+						</label>
+					</form>
 				</div>
-				<div class="headerinfo">
-					<img id="loader" src="./static/img/search.gif" class="hidden">
+				<div id="loader" class="hidden">
+					<img src="./static/img/search.gif">
 				</div>
 			</div>
 
-			<div class="floatingsmall">
+			<div class="flex-2">
 				<b>Gameinfo</b>
 				<table id="gameinfo"></table>
 			</div>
+		</section>
 
-			<div class="clear"></div>
-		</div>
+		<section id="warnings" class="hidden"></section>
 
-		<div id="warnings" class="hidden"></div>
-
-		<div class="maincontainer">
-			<div class="floating">
+		<section id="gamestats">
+			<div class="flex-3">
 				<b>Playerinfo</b>
 				<table id="players"></table>
 			</div>
-
-			<div class="floatingsmall">
+			<div class="flex-2">
 				<b>Teaminfo</b>
 				<table id="teaminfo"></table>
 			</div>
-
-			<div class="clear"></div>
-		</div>
+		</section>
 	</body>
 </html>

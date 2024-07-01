@@ -1,28 +1,14 @@
-let starttime;
-let timestart, timedone;
-let timer;
-
-
-function msToTime(duration) {
-	const time = new Date(duration);
-	const
-		hours   = `${time.getHours()}`.padStart(2, '0'),
-		minutes = `${time.getMinutes()}`.padStart(2, '0'),
-		seconds = `${time.getSeconds()}`.padStart(2, '0'),
-		milliseconds = Math.floor(time.getMilliseconds() / 100);
-  return `${hours}:${minutes}:${seconds}.${milliseconds}`;
-}
-
-
 function capitalizeString(s) {
 	return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 
+let timer;
+
 let query = {
-	ip      : '81.169.138.37',
-	port    : '9777',
-	timeout : 1,
+	ip      : null,
+	port    : null,
+	timeout : null,
 };
 
 class PageUrl {
@@ -50,9 +36,11 @@ class TOServer {
 
 	// TODO:
 	//  Show alert on HTTP error
-	//  Add input validation
 	static getStat(ip, port, timeout=1) {
-		const url = `${TOServer.baseUrl}/serverquery.php?${new URLSearchParams({ip, port, timeout})}`;
+		if (typeof ip === 'undefined' || typeof port === 'undefined') {
+			throw new TypeError(`Wrong server ip=${ip}, port=${port}`);
+		}
+		const url = `${TOServer.baseUrl}/serverquery.php?${new URLSearchParams({ip, port, timeout: 0})}`;
 		return fetch(url).then(response => response.json());
 	}
 }
@@ -60,10 +48,16 @@ class TOServer {
 
 const ui = {
 	init() {
-		this.search.$host    = document.getElementById('queryIP');
-		this.search.$port    = document.getElementById('queryPort');
-		this.search.$timeout = document.getElementById('queryTimeout');
-		this.search.$submitBtn = document.getElementById('querySubmitBtn');
+		const $form = document.getElementById('queryForm');
+		this.search.$form    = $form;
+		this.search.$host    = $form.elements.ip;
+		this.search.$port    = $form.elements.port;
+		this.search.$timeout = $form.elements.timeout;
+		this.search.$form.onsubmit = function(e) {
+			e.preventDefault();
+			PageUrl.update();
+			// PageUrl.update('https://serverstatus.tacops.de/index.php');
+		}
 		this.loader.$element = document.getElementById('loader');
 
 		this.serverInfo.$container = document.getElementById('gameinfo');
@@ -80,17 +74,17 @@ const ui = {
 	},
 
 	search: {
+		$form: null,
 		$host: null,
 		$port: null,
 		$timeout: null,
-		$submitBtn: null,
 
 		getParams() {
 			return {
 				ip      : this.$host.value,
 				port    : this.$port.value,
 				timeout : this.$timeout.value,
-			}
+			};
 		},
 		setParams({ip, port, timeout=1}) {
 			this.$host.value    = ip;
@@ -125,15 +119,10 @@ const ui = {
 				errors.forEach(
 					(error, index) => $gameinfo.innerHTML += entryTemplate(index, error)
 				);
-				// timer = window.setTimeout(initialize, querytimeout);
 				return;
 			}
 
 			if (typeof server === undefined) return;
-			// if (typeof server === undefined) {
-			// 	timer = window.setTimeout(initialize, querytimeout);
-			// 	return;
-			// }
 
 			const server_fields = ['hostname', 'map', 'roundnumber', 'gameperiod'];
 			for (const [field, value] of Object.entries(server)) {
@@ -147,85 +136,98 @@ const ui = {
 
 	teams: {
 		$container: null,
+		template: ejs.compile(`
+			<thead>
+				<tr>
+					<% for (const name of columns) { %>
+						<th><%= capitalizeString(name) %></th>
+					<% } %>
+				</tr>
+			</thead>
+			<tbody>
+				<% for (const team of teams) { %>
+					<tr data-team="<%= team.nameTag %>">
+						<% for (const stat_prop of columns) { %>
+							<td>
+								<% if (Array.isArray(team[stat_prop])) { %>
+									<% for (const value of team[stat_prop]) { %>
+										<%= value %><br>
+									<% } %>
+								<% } else { %>
+									<%= team[stat_prop] %>
+								<% } %>
+							</td>
+						<% } %>
+					</tr>
+				<% } %>
+			</tbody>
+		`),
 
-		clear() {
-			this.$container.innerHTML = '';
-		},
 		render(teams) {
 			const $teams = this.$container;
 			this.clear();
 
 			if (teams.length) {
-				const $head = document.createElement('thead');
-				const columns = Object.keys(teams[0]).map(capitalizeString);
-				$head.innerHTML += `<tr>
-					${columns.map(name => `<th>${name}</th>`).join('')}
-				</tr>`;
-				$teams.appendChild($head);
-
-				const $body = document.createElement('tbody');
-				for (const team of teams) {
-					// if (o === 'info' || o === 'note') continue; /* <- What was this for? 🙄 */
-					let $tr = document.createElement('tr');
-					$tr.dataset.team = (team.name === 'Terrorists') ? 't' : 'ct';
-
-					for (const [field, value] of Object.entries(team)) {
-						switch (field) {
-							case 'names':
-								$tr.innerHTML += `<td>${value.join('<br>')}</td>`;
-								break;
-							default:
-								$tr.innerHTML += `<td>${value}</td>`;
-						}
-					}
-					$body.appendChild($tr);
-				}
-				$teams.appendChild($body);
+				const columns = Object.keys(teams[0]);
+				$teams.innerHTML = this.template({
+					columns,
+					teams: teams.map(
+						(team) => ({
+							...team,
+							nameTag: (team.name === 'Terrorists') ? 't' : 'ct'
+						})
+					)
+				});
 			}
+		},
+		clear() {
+			this.$container.innerHTML = '';
 		},
 	},
 
 	players: {
 		$container: null,
+		template: ejs.compile(`
+			<thead>
+				<tr>
+					<% for (const name of columns) { %>
+						<th><%= capitalizeString(name) %></th>
+					<% } %>
+				</tr>
+			</thead>
+			<tbody>
+				<% for (const player of players) { %>
+					<tr data-team="<%= player.teamName %>" data-dead="<%= player.isDead %>">
+						<% for (const stat_prop of columns) { %>
+							<td><%= player[stat_prop] %></td>
+						<% } %>
+					</tr>
+				<% } %>
+			</tbody>
+		`),
 
-		clear() {
-			this.$container.innerHTML = '';
-		},
 		render(players) {
 			const $players = this.$container;
 			this.clear();
 
 			if (players.length) {
-				const $head = document.createElement('thead');
-				const columns = Object.keys(players[0]).map(capitalizeString);
-				$head.innerHTML += `<tr>
-					${columns.map(name => `<th>${name}</th>`).join('')}
-				</tr>`;
-				$players.appendChild($head);
-
-				const $body = document.createElement('tbody');
-				for (const player of players) {
-					const team = parseInt(player.team);
-					if (team !== 255) {
-						const $tr = document.createElement('tr');
-						$body.appendChild($tr);
-
-						$tr.dataset.team = (!team) ? 't' : 'ct';
-						const isDead = (player.health === '0');
-						if (isDead) {
-							$tr.classList.add('dead');
-						}
-
-						for (let [field, value] of Object.entries(player)) {
-							if (field === 'health') {
-								value = (isDead) ? 'dead' : value;
-							}
-							$tr.innerHTML += `<td>${value}</td>`;
-						}
-					}
-				}
-				$players.appendChild($body);
+				const columns = Object.keys(players[0]);
+				$players.innerHTML = this.template({
+					columns,
+					players: players
+								.map(player => {
+									player.team = parseInt(player.team);
+									player.teamName = (!player.team) ? 't' : 'ct';
+									player.isDead = (player.health === '0');
+									player.health = (player.isDead) ? 'dead' : player.health;
+									return player;
+								})
+								.filter(player => player.team !== 255)
+				});
 			}
+		},
+		clear() {
+			this.$container.innerHTML = '';
 		},
 	},
 
@@ -246,8 +248,10 @@ const ui = {
 			if (warnings.length > 0) {
 				this.show();
 				$warnings.innerHTML = `
-					<strong>This Server does not support:</strong> ${warnings.join(', ')}.
-					Find more info on <a href="https://discord.gg/PXmbUKxjb5">https://discord.gg/PXmbUKxjb5</a>
+					<div>
+						<strong>This Server does not support:</strong>&nbsp;${warnings.join(', ')}.
+						Find more info on&nbsp;<a href="https://discord.gg/PXmbUKxjb5">https://discord.gg/PXmbUKxjb5</a>
+					</div>
 				`;
 			}
 		}
@@ -267,23 +271,22 @@ function initialize() {
 			ui.loader.hide();
 			ui.clear();
 
-			// if (isNaN(query.timeout) || query.timeout < 1 || query.timeout > 10) query.timeout = 1;
-
 			if (!data || !ui.serverInfo.render(data.gameinfo, data.errors)) {
-				timer = window.setTimeout(initialize, query.timeout);
+				timer = window.setTimeout(initialize, 1000*query.timeout);
 				return;
 			}
 			ui.warnings.render(data.warnings);
 			ui.players.render(data.players);
 			ui.teams.render(data.teaminfo);
 
-			timer = window.setTimeout(initialize, query.timeout);
+			timer = window.setTimeout(initialize, 1000*query.timeout);
 		});
 }
 
 
 window.onload = function() {
-	console.log(PageUrl.parse());
 	ui.init();
+	ui.search.setParams(PageUrl.parse());
+	console.log(ui.search.getParams());
 	initialize();
 };

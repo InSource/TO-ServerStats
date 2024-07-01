@@ -3,89 +3,18 @@ html {
 }
 
 body {
-  display: block;
-  top: 0;
-  bottom: 0;
-  /*background:#f1f1f1;*/
-  font: 9pt "lucida", sans-serif;
-  font-style: normal;
-  font-variant: normal;
-  font-weight: 500;
+  /*background: #f1f1f1;*/
+  font-family: 'lucida', sans-serif;
+  font-size: 9pt;
+  font-weight: normal;
 }
 
-
-h1 {
-  margin: 0;
-  padding-top: 15px;
-  background: none;
-  color: #990033;
-  /*font-family: Geneva;*/
-  font: 14px "lucida", sans-serif;
-  font-style: normal;
-  font-variant: normal;
-  font-weight: bold;
-  line-height: 16px;
-  letter-spacing: 0;
-}
-
-h2, h3 {
-  margin: 0;
-  padding-top: 15px;
-  background: none;
-  color: #990033;
-  /*font-family: Geneva;*/
-  font: 12px "lucida", sans-serif;
-  font-style: normal;
-  font-variant: normal;
-  font-weight: 500;
-  line-height: 0;
-  letter-spacing: 0;
-}
-
-h4 {
-  margin: 0;
-  padding-top: 10px;
-  background: none;
-  color: #666;
-  /*font-family: Geneva;*/
-  font: 12px "lucida", sans-serif;
-  font-style: normal;
-  font-variant: normal;
-  font-weight: 500;
-  line-height: 20px;
-  letter-spacing: 0;
-}
-
-h5 {
-  margin: 0;
-  margin-bottom: 10px;
-  color: #fff;
-  font-family: Garamond, Baskerville, "Baskerville Old Face", "Hoefler Text", "Times New Roman", serif;
-  font-weight: bold;
-}
-
-hr {
-  margin: 1px;
-  border: 1px;
-  border-top: 1px solid #0465C6;
-}
-
-b {
+a, b, strong {
   color: #990033;
 }
 
-button {
-
-}
-
-li {
-  cursor: pointer;
-  margin-bottom: 5px;
-  font-size: 10px;
-}
-li:hover {
-  color: #990033;
-  font-weight: bold;
+th {
+  text-align: left;
 }
 
 td {
@@ -93,125 +22,99 @@ td {
 }
 
 
-.maincontainer,
-#header,
-#warnings {
+.hidden {
+  display: none !important;
+}
+
+.flex-row-nowrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.flex-0 { flex: 0; }
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.flex-3 { flex: 3; }
+.flex-4 { flex: 4; }
+.flex-5 { flex: 5; }
+
+
+section {
   position: relative;
-  padding: 5px;
-  /*padding:20px;*/
-  min-width: 1000px;
-  max-width: 1000px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: 0 auto;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  width: 1000px !important;
+  height: auto;
   background: none;
   border: 1px solid #d1d1d1;
 }
-
-#header,
-#warnings {
-  top: 10px;
-  margin: 5px auto 10px;
-  height: auto;
+section > *:not(:first-child) {
+  margin-left: 20px;
 }
+
+
 #header {
+  margin-top: 15px;
+  margin-bottom: 10px;
   min-height: 50px;
 }
+
+#queryForm label {
+  display: block;
+  margin: 5px 0;
+}
+#queryForm label span {
+  display: inline-block;
+  width: 82px !important;
+}
+#queryForm label input {
+  box-sizing: border-box;
+  width: 180px;
+}
+
+#loader {
+  margin-top: 5px;
+  margin-left: 35px;
+}
+
+#gameinfo td {
+  padding: 3px;
+}
+
+
 #warnings {
+  margin-top: 5px;
+  margin-bottom: 10px;
   min-height: 20px;
 }
 
-.maincontainer {
-  margin: 30px auto 100px;
+
+#gamestats {
+  margin: 20px auto 100px;
   min-height: 600px;
 }
 
-.floating,
-.floatingsmall {
-  float: left;
-  position: relative;
-  margin-left: 20px;
-  min-height: 30px;
-}
-.floating {
-  width: 550px;
-}
-.floatingsmall {
-  width: 380px;
+#teaminfo {
+
 }
 
-.headertable {
-  float: left;
-  position: relative;
-  min-height: 30px;
-  width: 300px;
+#teaminfo th, #teaminfo td,
+#players th, #players td {
+  padding: 5px;
 }
-
-.headerinfo {
-  float: left;
-  position: relative;
-  top: 5px;
-  height: 80px;
-  width: 80px;
+#teaminfo tr[data-team='t'],
+#players tr[data-team='t'] {
+  color: #ff0000;
 }
-
-.mainlistcontainer {
-  float: left;
-  position: relative;
-  top: 10px;
-  margin: 0 10px 10px;
-  min-height: 300px;
-  width: 306px;
-  background: none;
-  border: 1px solid #d1d1d1;
+#teaminfo tr[data-team='ct'],
+#players tr[data-team='ct'] {
+  color: #0055ff;
 }
-
-.list-headline {
-  position: relative;
-  top: 0;
-  margin: 5px;
-  height: 20px;
-  width: 295px;
-  background: none;
-  border-bottom: 1px solid #d1d1d1;
-  color: #990033;
-  font: 12px "lucida", sans-serif;
-  text-align: center;
-}
-.list-list {
-  position: relative;
-  top: 0;
-  margin: 0;
-  max-height: 280px;
-  width: 305px;
-  overflow-y: scroll;
-  background: none;
-  border: none;
-}
-
-.installed {
-  color: #129600;
-  font-weight: bold;
-}
-.missing {
-  color: #c71104;
-  font-weight: bold;
-}
-
-.log-window,
-.menu-window {
-  float: left;
-  position: relative;
-  margin: 10px;
-  padding: 10px;
-  width: 960px;
-  border: 1px solid #e1e1e1;
-}
-.log-window {
-  min-height: 100px;
-}
-.menu-window {
-  padding-bottom: 0;
-  min-height: 20px;
-}
-
-.clear {
-  clear: both;
+#players tr[data-dead='true'] {
+  color: #aaa !important;
 }
