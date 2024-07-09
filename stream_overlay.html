@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tactical Ops: OBS Overlay</title>
+		<!--<script src="https://cdn.jsdelivr.net/npm/ejs@3.1.10/ejs.min.js"></script>-->
+		<script src="static/_libs/ejs-3.1.10.min.js"></script>
+		<script>
+			class PageUrl {
+				static parse() {
+					const url = new URL(location.href);
+					return {
+						ip      : url.searchParams.get('ip'),
+						port    : url.searchParams.get('port'),
+						timeout : url.searchParams.get('timeout'),
+					}
+				}
+
+				static update(query, url) {
+					if (typeof url !== 'string') {
+						url = location.origin + location.pathname
+					}
+					location.href = `${url}?${new URLSearchParams(query)}`;
+				}
+			}
+
+			class _333NetworksAPI {
+				static baseUrl = 'https://master.333networks.com/json';
+
+				static getStat(ip, port) {
+					return new Promise(
+						(resolve, reject) => {
+							if (typeof ip !== 'string' || !ip || typeof port !== 'string' || !port) {
+								reject(`Wrong server ip=${ip}, port=${port}. Check the url`);
+							}
+
+							const url = `${this.baseUrl}/ut/${ip}:${port}`;
+							fetch(url)
+								.then(response => response.json())
+								.then(
+									(response) => (response.hasOwnProperty('error'))
+													? reject(`API error:\n${JSON.stringify(response)}`)
+													: resolve(response)
+								)
+								.catch(reject);
+						}
+					);
+				}
+			}
+
+			class LuckyDogAPI {
+				static baseUrl = 'https://serverstatus.tacops.de';
+
+				static getStat(ip, port) {
+					return new Promise(
+						(resolve, reject) => {
+							if (typeof ip !== 'string' || !ip || typeof port !== 'string' || !port) {
+								reject(`Wrong server ip=${ip}, port=${port}. Check the url`);
+							}
+
+							const url = `${this.baseUrl}/serverquery.php?${new URLSearchParams({ip, port, timeout: 0})}`;
+							fetch(url)
+								.then(response => response.json())
+								.then(
+									(response) => (response.errors || []).length > 0
+													? reject(['API Error:', ...response.errors].join('\n'))
+													: resolve(response)
+								)
+								.catch(reject);
+						}
+					);
+				}
+			}
+
+
+			const ui = {
+				init() {
+					this.serverInfo.$container = document.querySelector('.top-wrapper');
+					this.teams.$containerT     = document.querySelector('.main-wrapper .main-wrapper-left-split-top');
+					this.teams.$containerCT    = document.querySelector('.main-wrapper .main-wrapper-right-split');
+				},
+
+				serverInfo: {
+					$container: null,
+					template: ejs.compile(`
+						<div class="top-wrapper-split">
+							<div><p>Players: <%= server.numplayers %> / <%= server.maxplayers %></p></div>
+							<div><p><%= server.map %></p></div>
+						</div>
+						<div>
+							<p><%= server.hostname %></p>
+							<p class="team-title">
+								<span>Terrorists: <span data-team="0"><%= teams[0].score %></span></span> - <span>Special Forces: <span data-team="1"><%= teams[1].score %></span></span>
+							</p>
+							<p>Round: <%= server.roundnumber %> - <%= server.gameperiod %></p>
+						</div>
+						<div class="top-wrapper-split">
+							<div><p>Last Win<br><span data-team="<%= server.lastwinnerteamid %>"><%= server.lastwinnerteam %></span></p></div>
+							<div><p>Total Kills<br><span data-team="0"><%= teams[0].kills_total %></span> / <span data-team="1"><%= teams[1].kills_total %></span></p></div>
+							<div><p>Total Score<br><span data-team="0"><%= teams[0].score_total %></span> / <span data-team="1"><%= teams[1].score_total %></span></p></div>
+							<div></div>
+						</div>
+					`),
+
+					render(server, teams) {
+						this.clear();
+						this.$container.innerHTML = this.template({server, teams});
+					},
+					clear() {
+						this.$container.innerHTML = '';
+					},
+				},
+
+				teams: {
+					$containerT: null,
+					$containerCT: null,
+					template: ejs.compile(`
+						<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
+							<div class="player-name">
+								<div><%= player.name %></div>
+							</div>
+							<% if (icons) { %>
+								<div class="player-stats">
+									<div><i class="fa-solid fa-star"></i> <%= player.score %></div>
+									<div><i class="fa-solid fa-crosshairs"></i> <%= player.kills %></div>
+									<div><i class="fa-solid fa-skull-crossbones"></i> <%= player.deaths %></div>
+									<div><i class="fa-solid fa-signal"></i> <%= player.ping %></div>
+								</div>
+							<% } else { %>
+								<div class="player-stats">
+									<div>S: <%= player.score %></div>
+									<div>K: <%= player.kills %></div>
+									<div>D: <%= player.deaths %></div>
+									<div>P: <%= player.ping %></div>
+								</div>
+							<% } %>
+						</div>
+					`),
+					useIcons: true,
+
+					render(teams) {
+						this.clear();
+
+						if (teams.length) {
+							teams[0].players.forEach(
+								(player) => this.$containerT.innerHTML  += this.template({player, icons: this.useIcons})
+							);
+							teams[1].players.forEach(
+								(player) => this.$containerCT.innerHTML += this.template({player, icons: this.useIcons})
+							);
+						}
+					},
+					clear() {
+						this.$containerT.innerHTML = '';
+						this.$containerCT.innerHTML = '';
+					},
+				},
+			};
+
+			// TODO:
+			// - When server doesn't return some fields should I use some defaults or just show 'N/A'?
+			// - Should be there any indication on request fail?
+			function refresh(ip, port, onError) {
+				LuckyDogAPI.getStat(ip, port)
+					.then(function(data) {
+						const server = data.headers;
+						const session = data.gameinfo;
+						// const { lastroundwinner } = session;
+						const game = {
+							...session,
+							numplayers: session.numplayers,
+							maxplayers: server.maxplayers,
+							roundnumber: session.roundnumber,
+							gameperiod: (session.gameperiod === 'RoundPlaying')
+											? 'Active'
+											: (session.gameperiod === 'PreRound')
+												? 'Pre Round'
+												: 'After Round',
+							lastwinnerteamid: session.lastroundwinner,
+							lastwinnerteam: ({0: 'T', 1: 'SF'})[session.lastroundwinner] || '-',
+						};
+
+						const players = (data.players || [])
+											.map((player) => {
+												player.team      = (typeof player.team !== 'undefined') ? parseInt(player.team) : 0;
+												player.teamName  = (!player.team) ? 't' : 'ct';
+												player.kills     = (typeof player.kills  !== 'undefined') ? parseInt(player.kills)  : 0;
+												player.deaths    = (typeof player.deaths !== 'undefined') ? parseInt(player.deaths) : 0;
+												player.score     = (typeof player.score  !== 'undefined') ? parseInt(player.score)  : 0;
+												player.ping      = (typeof player.ping   !== 'undefined') ? parseInt(player.ping)   : 0;
+												player.isDead    = (player.health === '0');
+												return player;
+											})
+											.filter(player => player.team !== 255);
+
+						const teams = (data.teaminfo || [])
+										.sort((a, b) => a.name < b.name ? 1 : -1)
+										.map((team, id) => {
+											team.id      = id;
+											team.nameTag = (!team.id) ? 't' : 'ct'
+											team.players = players.filter(player => player.team === id);
+											team.score_total = team.players.reduce((score, player) => score + player.score, 0);
+											team.kills_total = team.players.reduce((kills, player) => kills + player.kills, 0);
+											return team;
+										});
+						console.log(game, teams, players, server);
+
+						ui.serverInfo.render(game, teams);
+						ui.teams.render(teams);
+					})
+					.catch((e) => {
+						// alert(e);
+						if (typeof onError === 'function') {
+							onError(e);
+						}
+					});
+			}
+
+
+			let timer, attempts = 5;
+			window.onload = function() {
+				ui.init();
+
+				const {ip, port, timeout} = PageUrl.parse();
+				refresh(ip, port);
+				timer = setInterval(
+					() => refresh(ip, port, () => (!attempts--) && clearInterval(timer)),
+					parseInt(timeout || 2) * 1000
+				);
+			};
+		</script>
+
+		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" rel="stylesheet">-->
+		<link href="./static/_libs/fontawesome-6.5.2/css/fontawesome.min.css" rel="stylesheet">
+		<link href="./static/_libs/fontawesome-6.5.2/css/brands.min.css" rel="stylesheet">
+		<link href="./static/_libs/fontawesome-6.5.2/css/solid.min.css" rel="stylesheet">
+		<style>
+			:root {
+				/* Main params placed here */
+				--game-stat-height: 394px;
+
+				--text-color-team0: #E9514F;
+				--text-color-team1: #74ACDA;
+
+				--card-width          : 330px;
+				--card-border-radius  : 7px;
+				--card-gap-between    : 4px;
+				--card-bg-color       : rgba(100, 100, 100, 0.40);
+				--card-bg-color-team0 : rgba(209,  72,  71, 0.75); /* rgba(233,81,79, 0.7); #E9514F */
+				--card-bg-color-team1 : rgba(104, 154, 196, 0.75); /* rgba(116,172,218, 0.7); #74ACDA */
+				--card-name-color     : rgb(240, 240, 240);
+				--card-stat-color     : rgb(220, 220, 220);
+			}
+
+			body {
+				margin: 0;
+				background-color: #000000;
+				color: rgb(230, 230, 230);
+				font-family: Tahoma, sans-serif;
+				font-size: 21px;
+				font-weight: 600;
+				text-shadow: 1px 1px 3px #000000;
+			}
+
+			.team-title {
+				padding-top: 15px;
+				font-size: 31px;
+			}
+			.team-title span {
+				white-space: nowrap;
+			}
+
+			.top-wrapper {
+				display: flex;
+				justify-content: center;
+				align-items: flex-start;
+				height: var(--game-stat-height);
+				max-height: var(--game-stat-height);
+				text-align: center;
+				padding-top: 4px;
+			}
+
+			.top-wrapper > div {
+				flex: 1;
+				margin: 0 10px;
+			}
+
+			.top-wrapper > div > div {
+				flex: 1;
+			}
+
+			.top-wrapper-split {
+				display: flex;
+				overflow: hidden;
+				width: 100%;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+
+			.top-wrapper-split > div {
+				flex: 1;
+				margin: 0 5px;
+			}
+
+			.top-wrapper p {
+				margin: 0;
+			}
+			.top-wrapper span[data-team='0'] { color: var(--text-color-team0); }
+			.top-wrapper span[data-team='1'] { color: var(--text-color-team1); }
+
+			.main-wrapper {
+				display: flex;
+				padding: 0 22px;
+				height: calc(100vh - var(--game-stat-height));
+			}
+
+			.main-wrapper-split {
+				display: flex;
+				flex-direction: column;
+				width: 50%;
+			}
+			.main-wrapper-left-split {
+				justify-content: space-between;
+				text-align: left;
+			}
+
+			.main-wrapper-left-split-top {
+				flex: 1;
+			}
+
+			.main-wrapper-left-split-bottom {
+				text-align: left;
+				width: 350px;
+			}
+
+			.main-wrapper-right-split {
+				align-items: flex-end;
+				text-align: right;
+			}
+
+			.card-right-container {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+			}
+
+			.player-card {
+				margin-bottom: var(--card-gap-between);
+				padding: 1px 0 2px 4px;
+				width: var(--card-width);
+				background-color: var(--card-bg-color);
+				border: 2px solid rgba(0, 0, 0, 0.25);
+				border-radius: var(--card-border-radius);
+				text-align: left;
+				text-shadow: 1px 1px 5px #000000;
+			}
+
+			.player-card[data-team='0'].alive { background-color: var(--card-bg-color-team0); }
+			.player-card[data-team='1'].alive { background-color: var(--card-bg-color-team1); }
+
+			.player-name {
+				display: flex;
+				height: 29px;
+				overflow: hidden;
+				color: var(--card-name-color);
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.player-name > div:first-child { width: 99%; }
+			.player-name > div:last-child  { width:  1%; }
+
+			.player-stats {
+				display: flex;
+				justify-content: space-between;
+				overflow: hidden;
+				color: var(--card-stat-color);
+				font-size: 20px;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.player-stats > div {
+				flex: 1;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="overlay">
+			<div class="top-wrapper"></div>
+			<div class="main-wrapper">
+				<div class="main-wrapper-split main-wrapper-left-split">
+					<div class="main-wrapper-left-split-top card-left-container"></div>
+					<div class="main-wrapper-left-split-bottom"></div>
+				</div>
+				<div class="main-wrapper-split main-wrapper-right-split card-right-container"></div>
+			</div>
+		</div>
+	</body>
+</html>

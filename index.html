@@ -8,11 +8,11 @@
 		<!-- TODO: Update metadata -->
 		<meta name="author" content="Geronimo Stade" />
 		<meta name="copyright" content="Geronimo Stade 2024" />
-<!--		<link rel="stylesheet" href="./static/_libs/jquery-ui.css">-->
-<!--		<script type="text/javascript" src="./static/_libs/jquery.js"></script>-->
-<!--		<script type="text/javascript" src="./static/_libs/jquery-ui.js"></script>-->
+<!--		<link rel="stylesheet" href="./static/_libs/jquery/jquery-ui.css">-->
+<!--		<script type="text/javascript" src="./static/_libs/jquery/jquery.js"></script>-->
+<!--		<script type="text/javascript" src="./static/_libs/jquery/jquery-ui.js"></script>-->
 		<script type="text/javascript" src="./static/_libs/ejs-3.1.10.min.js"></script>
-		<link rel="stylesheet" href="./static/main.css" type="text/css" media="screen">
+		<link href="./static/main.css" rel="stylesheet" media="screen">
 		<script type="text/javascript" src="./static/main.js"></script>
 	</head>
 	<body>
@@ -23,15 +23,15 @@
 					<form id="queryForm">
 						<label>
 							<span>Server IP</span>:
-							<input type="text" placeholder="ip" name="ip">
+							<input name="ip" type="text" placeholder="ip" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" required>
 						</label>
 						<label>
 							<span>Server Port</span>:
-							<input type="text" placeholder="port" name="port">
+							<input name="port" type="text" placeholder="port" pattern="^\d{1,5}$" required>
 						</label>
 						<label>
 							<span>Query Timeout</span>:
-							<input type="number" min="1" max="10" placeholder="timeout" name="timeout">
+							<input name="timeout" type="number" min="1" max="10" placeholder="timeout" required>
 						</label>
 						<label>
 							<span>Query</span>:

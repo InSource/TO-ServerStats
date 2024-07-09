@@ -21,8 +21,7 @@ class PageUrl {
 		}
 	}
 
-	static update(url) {
-		query = ui.search.getParams();
+	static update(query, url) {
 		if (typeof url !== 'string') {
 			url = location.origin + location.pathname
 		}
@@ -55,8 +54,10 @@ const ui = {
 		this.search.$timeout = $form.elements.timeout;
 		this.search.$form.onsubmit = function(e) {
 			e.preventDefault();
-			PageUrl.update();
-			// PageUrl.update('https://serverstatus.tacops.de/index.php');
+
+			query = ui.search.getParams();
+			PageUrl.update(query);
+			// PageUrl.update(query, 'https://serverstatus.tacops.de/index.php');
 		}
 		this.loader.$element = document.getElementById('loader');
 
@@ -90,7 +91,7 @@ const ui = {
 			this.$host.value    = ip;
 			this.$port.value    = port;
 			this.$timeout.value = timeout;
-		}
+		},
 	},
 
 	loader: {
@@ -233,9 +234,12 @@ const ui = {
 
 	warnings: {
 		$container: null,
-
-		show () { this.$container.classList.remove('hidden'); },
-		hide () { this.$container.classList.add('hidden'); },
+		template: ejs.compile(`
+			<div>
+				<strong>This Server does not support:</strong>&nbsp;<%= warnings.join(', ') %>.
+				Find more info on&nbsp;<a href="https://discord.gg/PXmbUKxjb5">https://discord.gg/PXmbUKxjb5</a>
+			</div>
+		`),
 
 		clear() {
 			this.$container.innerHTML = '';
@@ -247,16 +251,14 @@ const ui = {
 			const $warnings = this.$container;
 			if (warnings.length > 0) {
 				this.show();
-				$warnings.innerHTML = `
-					<div>
-						<strong>This Server does not support:</strong>&nbsp;${warnings.join(', ')}.
-						Find more info on&nbsp;<a href="https://discord.gg/PXmbUKxjb5">https://discord.gg/PXmbUKxjb5</a>
-					</div>
-				`;
+				$warnings.innerHTML = this.template({warnings});
 			}
-		}
+		},
+
+		show () { this.$container.classList.remove('hidden'); },
+		hide () { this.$container.classList.add('hidden'); },
 	},
-}
+};
 
 
 function initialize() {

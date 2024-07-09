@@ -76,6 +76,12 @@ section > *:not(:first-child) {
   box-sizing: border-box;
   width: 180px;
 }
+#queryForm input:invalid {
+  border-color: red;
+}
+#queryForm input:invalid:focus {
+  outline: red;
+}
 
 #loader {
   margin-top: 5px;
