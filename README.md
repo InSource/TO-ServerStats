@@ -12,6 +12,8 @@ Features:
 To do:
 - Handle different server versions:
   - [x] [Main](https://tactical-ops.eu/totv/overlays/ld_hud.php) (powered by LuckyDog API)
+    - [x] regular
+    - [x] with icons! 🤌🏻 (`ui.teams.useIcons = true`)
   - [ ] Trimmed — less information available, e.g., no Player Status, Round Wins, etc (powered by LuckyDog API)
     - [ ] [TO3.4 Version](https://tactical-ops.eu/totv/overlays/ld_hud_to340.php)
     - [ ] [TO3.5 Version](https://tactical-ops.eu/totv/overlays/ld_hud_to3t0.php)

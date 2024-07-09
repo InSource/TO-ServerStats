@@ -75,8 +75,8 @@
 			const ui = {
 				init() {
 					this.serverInfo.$container = document.querySelector('.top-wrapper');
-					this.teams.$containerT     = document.querySelector('.main-wrapper .main-wrapper-left-split-top');
-					this.teams.$containerCT    = document.querySelector('.main-wrapper .main-wrapper-right-split');
+					this.teams.$containerT     = document.querySelector('.main-wrapper-left-split .card-container');
+					this.teams.$containerCT    = document.querySelector('.main-wrapper-right-split .card-container');
 				},
 
 				serverInfo: {
@@ -120,10 +120,10 @@
 							</div>
 							<% if (icons) { %>
 								<div class="player-stats">
-									<div><i class="fa-solid fa-star"></i> <%= player.score %></div>
-									<div><i class="fa-solid fa-crosshairs"></i> <%= player.kills %></div>
-									<div><i class="fa-solid fa-skull-crossbones"></i> <%= player.deaths %></div>
-									<div><i class="fa-solid fa-signal"></i> <%= player.ping %></div>
+									<div><i class="fa-solid fa-star fa-fw"></i> <%= player.score %></div>
+									<div><i class="fa-solid fa-crosshairs fa-fw"></i> <%= player.kills %></div>
+									<div><i class="fa-solid fa-skull-crossbones fa-fw"></i> <%= player.deaths %></div>
+									<div><i class="fa-solid fa-signal fa-fw"></i> <%= player.ping %></div>
 								</div>
 							<% } else { %>
 								<div class="player-stats">
@@ -235,7 +235,7 @@
 		<link href="./static/_libs/fontawesome-6.5.2/css/solid.min.css" rel="stylesheet">
 		<style>
 			:root {
-				/* Main params placed here */
+				/* Main params live here */
 				--game-stat-height: 394px;
 
 				--text-color-team0: #E9514F;
@@ -251,6 +251,7 @@
 				--card-stat-color     : rgb(220, 220, 220);
 			}
 
+
 			body {
 				margin: 0;
 				background-color: #000000;
@@ -261,14 +262,7 @@
 				text-shadow: 1px 1px 3px #000000;
 			}
 
-			.team-title {
-				padding-top: 15px;
-				font-size: 31px;
-			}
-			.team-title span {
-				white-space: nowrap;
-			}
-
+			/* 1. Generic server info */
 			.top-wrapper {
 				display: flex;
 				justify-content: center;
@@ -301,14 +295,26 @@
 				margin: 0 5px;
 			}
 
+			.team-title {
+				padding-top: 15px;
+				font-size: 31px;
+			}
+			.team-title span {
+				/* otherwise team names will be wrapped! */
+				white-space: nowrap;
+			}
+
 			.top-wrapper p {
 				margin: 0;
 			}
 			.top-wrapper span[data-team='0'] { color: var(--text-color-team0); }
 			.top-wrapper span[data-team='1'] { color: var(--text-color-team1); }
 
+
+			/* 2. Per-player stats */
 			.main-wrapper {
 				display: flex;
+				justify-content: space-between;
 				padding: 0 22px;
 				height: calc(100vh - var(--game-stat-height));
 			}
@@ -316,31 +322,7 @@
 			.main-wrapper-split {
 				display: flex;
 				flex-direction: column;
-				width: 50%;
-			}
-			.main-wrapper-left-split {
-				justify-content: space-between;
-				text-align: left;
-			}
-
-			.main-wrapper-left-split-top {
-				flex: 1;
-			}
-
-			.main-wrapper-left-split-bottom {
-				text-align: left;
-				width: 350px;
-			}
-
-			.main-wrapper-right-split {
-				align-items: flex-end;
-				text-align: right;
-			}
-
-			.card-right-container {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-end;
+				/*width: 50%;*/
 			}
 
 			.player-card {
@@ -353,7 +335,6 @@
 				text-align: left;
 				text-shadow: 1px 1px 5px #000000;
 			}
-
 			.player-card[data-team='0'].alive { background-color: var(--card-bg-color-team0); }
 			.player-card[data-team='1'].alive { background-color: var(--card-bg-color-team1); }
 
@@ -380,6 +361,9 @@
 			.player-stats > div {
 				flex: 1;
 			}
+			.player-stats i {
+				width: 25px;
+			}
 		</style>
 	</head>
 	<body>
@@ -387,10 +371,11 @@
 			<div class="top-wrapper"></div>
 			<div class="main-wrapper">
 				<div class="main-wrapper-split main-wrapper-left-split">
-					<div class="main-wrapper-left-split-top card-left-container"></div>
-					<div class="main-wrapper-left-split-bottom"></div>
+					<div class="card-container"></div>
 				</div>
-				<div class="main-wrapper-split main-wrapper-right-split card-right-container"></div>
+				<div class="main-wrapper-split main-wrapper-right-split">
+					<div class="card-container"></div>
+				</div>
 			</div>
 		</div>
 	</body>
