@@ -21,26 +21,11 @@ class PageUrl {
 		}
 	}
 
-	static update(query, url) {
+	static update(params, url) {
 		if (typeof url !== 'string') {
 			url = location.origin + location.pathname
 		}
-		location.href = `${url}?${new URLSearchParams(query)}`;
-	}
-}
-
-
-class TOServer {
-	static baseUrl = 'https://serverstatus.tacops.de';
-
-	// TODO:
-	//  Show alert on HTTP error
-	static getStat(ip, port, timeout=1) {
-		if (typeof ip === 'undefined' || typeof port === 'undefined') {
-			throw new TypeError(`Wrong server ip=${ip}, port=${port}`);
-		}
-		const url = `${TOServer.baseUrl}/serverquery.php?${new URLSearchParams({ip, port, timeout: 0})}`;
-		return fetch(url).then(response => response.json());
+		location.href = `${url}?${new URLSearchParams(params)}`;
 	}
 }
 
@@ -217,12 +202,15 @@ const ui = {
 					columns,
 					players: players
 								.map(player => {
-									player.team = parseInt(player.team);
+									player.team     = parseInt(player.team);
 									player.teamName = (!player.team) ? 't' : 'ct';
+									player.score  = (typeof player.score  !== 'undefined') ? parseInt(player.score)  : 0;
+									player.kills  = (typeof player.kills  !== 'undefined') ? parseInt(player.kills)  : 0;
 									player.isDead = (player.health === '0');
 									player.health = (player.isDead) ? 'dead' : player.health;
 									return player;
 								})
+								.sort((a, b) => b.score - a.score)
 								.filter(player => player.team !== 255)
 				});
 			}
@@ -265,7 +253,7 @@ function initialize() {
 	query = ui.search.getParams();
 	ui.loader.show();
 
-	TOServer.getStat(query.ip, query.port, query.timeout)
+	LuckyDogAPI.getStat(query.ip, query.port, query.timeout)
 		.then(function(data) {
 			while (timer--) {
 				window.clearTimeout(timer);
@@ -282,7 +270,8 @@ function initialize() {
 			ui.teams.render(data.teaminfo);
 
 			timer = window.setTimeout(initialize, 1000*query.timeout);
-		});
+		})
+		.catch(alert);
 }
 
 

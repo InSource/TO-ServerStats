@@ -4,6 +4,7 @@
 		<title>Tactical Ops: OBS Overlay</title>
 		<!--<script src="https://cdn.jsdelivr.net/npm/ejs@3.1.10/ejs.min.js"></script>-->
 		<script src="./static/_libs/ejs-3.1.10.min.js"></script>
+		<script src="./static/api.js"></script>
 		<script>
 			class PageUrl {
 				static parse() {
@@ -22,54 +23,6 @@
 						url = location.origin + location.pathname
 					}
 					location.href = `${url}?${new URLSearchParams(query)}`;
-				}
-			}
-
-			class _333NetworksAPI {
-				static baseUrl = 'https://master.333networks.com/json';
-
-				static getStat(ip, port) {
-					return new Promise(
-						(resolve, reject) => {
-							if (typeof ip !== 'string' || !ip || typeof port !== 'string' || !port) {
-								reject(`Wrong server ip=${ip}, port=${port}. Check the url`);
-							}
-
-							const url = `${this.baseUrl}/ut/${ip}:${port}`;
-							fetch(url)
-								.then(response => response.json())
-								.then(
-									(response) => (response.hasOwnProperty('error'))
-													? reject(`API error:\n${JSON.stringify(response)}`)
-													: resolve(response)
-								)
-								.catch(reject);
-						}
-					);
-				}
-			}
-
-			class LuckyDogAPI {
-				static baseUrl = 'https://serverstatus.tacops.de';
-
-				static getStat(ip, port) {
-					return new Promise(
-						(resolve, reject) => {
-							if (typeof ip !== 'string' || !ip || typeof port !== 'string' || !port) {
-								reject(`Wrong server ip=${ip}, port=${port}. Check the url`);
-							}
-
-							const url = `${this.baseUrl}/serverquery.php?${new URLSearchParams({ip, port, timeout: 0})}`;
-							fetch(url)
-								.then(response => response.json())
-								.then(
-									(response) => (response.errors || []).length > 0
-													? reject(['API Error:', ...response.errors].join('\n'))
-													: resolve(response)
-								)
-								.catch(reject);
-						}
-					);
 				}
 			}
 
@@ -158,10 +111,7 @@
 				},
 			};
 
-			// TODO:
-			// - When server doesn't return some fields should I use some defaults or just show 'N/A'?
-			// - Should be there any indication on request fail?
-			// - Should we stop request data after certain attempts count?
+
 			function refresh(ip, port, onError) {
 				LuckyDogAPI
 					.getStat(ip, port)
@@ -190,11 +140,10 @@
 											.map((player) => {
 												player.team     = (typeof player.team !== 'undefined') ? parseInt(player.team) : 0;
 												player.teamName = (!player.team) ? 't' : 'sf';
+												player.score    = (typeof player.score  !== 'undefined') ? parseInt(player.score)  : 0;
 												player.kills    = (typeof player.kills  !== 'undefined') ? parseInt(player.kills)  : 0;
 												player.deaths   = (typeof player.deaths !== 'undefined') ? parseInt(player.deaths) : 0;
-												player.score    = (typeof player.score  !== 'undefined') ? parseInt(player.score)  : 0;
-												player.ping     = (typeof player.ping   !== 'undefined') ? parseInt(player.ping)   : 0;
-												player.ping     = Math.min(player.ping, 999);
+												player.ping     = (typeof player.ping   !== 'undefined') ? Math.min(+player.ping, 999) : 0;
 												player.isDead   = (player.health === '0');
 												return player;
 											})
@@ -216,7 +165,7 @@
 						ui.serverInfo.render(game, teams);
 						ui.teams.render(teams);
 					})
-					.catch((e) => {
+					.catch(function(e) {
 						// alert(e);
 						if (typeof onError === 'function') {
 							onError(e);
@@ -241,9 +190,9 @@
 								if (player.team > 1) continue;
 
 								player.teamName = (!player.team) ? 't' : 'sf';
+								player.score    = '-';
 								player.kills    = player.frags;
-								player.deaths   = 0;
-								player.score    = 0;
+								player.deaths   = '-';
 								player.ping     = Math.min(player.ping, 999);
 								player.isDead   = false;
 								players.push(player);
@@ -254,8 +203,8 @@
 							team.players = players
 											.filter((player) => player.team === id)
 											.sort((a, b) => b.kills - a.kills);
-							team.numplayers = team.players.length;
-							team.score = '-';
+							team.numplayers  = team.players.length;
+							team.score       = '-';
 							team.score_total = '-';
 							team.kills_total = team.players.reduce((kills, player) => kills + player.kills, 0);
 						});
@@ -275,7 +224,7 @@
 						ui.serverInfo.render(game, teams);
 						ui.teams.render(teams);
 					})
-					.catch((e) => {
+					.catch(function(e) {
 						// alert(e);
 						if (typeof onError === 'function') {
 							onError(e);
@@ -423,8 +372,10 @@
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
-			.player-name > div:first-child { width: 99%; }
-			.player-name > div:last-child  { width:  1%; }
+			.player-name > div {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
 
 			.player-stats {
 				display: flex;
@@ -437,9 +388,6 @@
 			}
 			.player-stats > div {
 				flex: 1;
-			}
-			.player-stats i {
-				width: 25px;
 			}
 		</style>
 	</head>
