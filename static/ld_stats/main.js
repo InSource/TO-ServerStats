@@ -256,20 +256,20 @@ function initialize() {
 	LuckyDogAPI.getStat(query.ip, query.port, query.timeout)
 		.then(function(data) {
 			while (timer--) {
-				window.clearTimeout(timer);
+				clearTimeout(timer);
 			}
 			ui.loader.hide();
 			ui.clear();
 
 			if (!data || !ui.serverInfo.render(data.gameinfo, data.errors)) {
-				timer = window.setTimeout(initialize, 1000*query.timeout);
+				timer = setTimeout(initialize, 1000*query.timeout);
 				return;
 			}
 			ui.warnings.render(data.warnings);
 			ui.players.render(data.players);
 			ui.teams.render(data.teaminfo);
 
-			timer = window.setTimeout(initialize, 1000*query.timeout);
+			timer = setTimeout(initialize, 1000*query.timeout);
 		})
 		.catch(alert);
 }

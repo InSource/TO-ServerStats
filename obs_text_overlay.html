@@ -5,29 +5,22 @@
 		<!--<script src="https://cdn.jsdelivr.net/npm/ejs@3.1.10/ejs.min.js"></script>-->
 		<script src="./static/_libs/ejs-3.1.10.min.js"></script>
 		<script src="./static/api.js"></script>
-		<script src="./static/overlay/hud-ui.js"></script>
+		<script src="./static/overlay/text-ui.js"></script>
 		<script src="./static/overlay/main.js"></script>
 		<script>
-			initialize(HudUi);
+			initialize(TextUi);
 		</script>
 
 		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" rel="stylesheet">-->
 		<link href="./static/_libs/fontawesome-6.5.2/css/fontawesome.min.css" rel="stylesheet">
 		<link href="./static/_libs/fontawesome-6.5.2/css/brands.min.css" rel="stylesheet">
 		<link href="./static/_libs/fontawesome-6.5.2/css/solid.min.css" rel="stylesheet">
-		<link href="./static/overlay/css/hud.css" rel="stylesheet">
+		<link href="./static/overlay/css/text.css" rel="stylesheet">
 	</head>
 	<body>
 		<div id="overlay">
 			<div class="top-wrapper"></div>
-			<div class="main-wrapper">
-				<div class="main-wrapper-split">
-					<div class="card-container" data-team="0"></div>
-				</div>
-				<div class="main-wrapper-split">
-					<div class="card-container" data-team="1"></div>
-				</div>
-			</div>
+			<div class="card-container"></div>
 		</div>
 	</body>
 </html>

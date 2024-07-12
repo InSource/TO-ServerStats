@@ -1,11 +1,12 @@
-function HudUi(mode='main', useIcons) {
+function HudUi(mode, useIcons) {
 	function init() {
+		mode = mode || 'main';
 		document.body.dataset.mode = mode;
 		_teams.useIcons = useIcons;
 
 		_server.$container  = document.querySelector('.top-wrapper');
-		_teams.$containerT  = document.querySelector('.main-wrapper-left-split .card-container');
-		_teams.$containerSF = document.querySelector('.main-wrapper-right-split .card-container');
+		_teams.$containerT  = document.querySelector('.card-container[data-team="0"]');
+		_teams.$containerSF = document.querySelector('.card-container[data-team="1"]');
 	}
 
 	const _server = {
@@ -67,10 +68,15 @@ function HudUi(mode='main', useIcons) {
 		template: ejs.compile(`
 			<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
 				<div class="player-name">
-					<div><%= player.name %></div>
+					<div>
+						<%= player.name %>
+						<% for (let i = 0; i < player.rank; i++) { %>
+							<i class="fa-solid fa-trophy fa-fw"></i>
+						<% } %>
+					</div>
 				</div>
-				<% if (icons) { %>
-					<div class="player-stats">
+				<div class="player-stats">
+					<% if (icons) { %>
 						<div data-stat="player-score">
 							<i class="fa-solid fa-star fa-fw"></i> <%= player.score %>
 						</div>
@@ -83,15 +89,13 @@ function HudUi(mode='main', useIcons) {
 						<div data-stat="player-ping">
 							<i class="fa-solid fa-signal fa-fw"></i> <%= player.ping %>
 						</div>
-					</div>
-				<% } else { %>
-					<div class="player-stats">
+					<% } else { %>
 						<div data-stat="player-score">S: <%= player.score %></div>
 						<div data-stat="player-kills">K: <%= player.kills %></div>
 						<div data-stat="player-deaths">D: <%= player.deaths %></div>
 						<div data-stat="player-ping">P: <%= player.ping %></div>
-					</div>
-				<% } %>
+					<% } %>
+				</div>
 			</div>
 		`),
 		useIcons: true,
@@ -101,7 +105,7 @@ function HudUi(mode='main', useIcons) {
 
 			if (teams.length) {
 				teams[0].players.forEach(
-					(player) => this.$containerT.innerHTML  += this.template({player, icons: this.useIcons})
+					(player) => this.$containerT.innerHTML += this.template({player, icons: this.useIcons})
 				);
 				teams[1].players.forEach(
 					(player) => this.$containerSF.innerHTML += this.template({player, icons: this.useIcons})
