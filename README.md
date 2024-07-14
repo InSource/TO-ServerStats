@@ -43,10 +43,3 @@ Considerations:
 ### How to use it?
 
 It works without using any web server, just open `file:///path/to/obs_hud_overlay.html?ip=81.169.138.37&port=9777&icons=true` and voilà! ;)
-
-> P.S. Not quite right... at least for now. LuckyDog's API response headers doesn't contain `Access-Control-Allow-Origin: *`, so your beloved browser will complain (= throw errors) on every fetch/xhr request. And yet keep calm, we've got you covered ;)  
-> On Windows:
-> 1) Press **Win+R**
-> 2) Enter and submit: `chrome.exe --user-data-dir="C:\Temp\ChromeSession" --disable-web-security`
->
->   **Note:** Although this browser session is separate and won't have access to your Chrome user data (like saved cookies, passwords, google profile, etc.), normally you **don't wanna** turn web security off other than for tinkering with this or any other **trusted** project ☝🏻
