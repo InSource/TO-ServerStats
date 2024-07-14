@@ -4,7 +4,7 @@ function TextUi(mode, useIcons) {
 		document.body.dataset.mode = mode;
 		_players.useIcons = useIcons;
 
-		_server.$container  = document.querySelector('.top-wrapper');
+		_server.$container  = document.querySelector('.server-info');
 		_players.$container = document.querySelector('.card-container');
 	}
 
@@ -15,7 +15,7 @@ function TextUi(mode, useIcons) {
 				<%= server.hostname %>
 			</div>
 			<div data-stat="server-map">
-				<%= server.map %>
+				<%= server.mapname %>
 			</div>
 			<div data-stat="server-players">
 				Players: <%= server.numplayers %> / <%= server.maxplayers %>
@@ -29,7 +29,7 @@ function TextUi(mode, useIcons) {
 			<div data-stat="server-round">
 				Round: <%= server.roundnumber %> [<%= server.gameperiod %>]
 			</div>
-			<div class="top-wrapper-row">
+			<div class="server-info-row">
 				<div data-stat="team-kills">
 					<span class="label">Total Kills</span>
 					<br>
@@ -54,57 +54,59 @@ function TextUi(mode, useIcons) {
 
 	const _players = {
 		$container: null,
-		template1: ejs.compile(`
-			<div class="player-card">
-				<div class="player-name"></div>
-				<div class="player-stats">
-					<% if (icons) { %>
-						<div data-stat="player-ping">
-							<i class="fa-solid fa-signal fa-fw"></i>
-						</div>
-						<div data-stat="player-kills">
-							<i class="fa-solid fa-crosshairs fa-fw"></i>
-						</div>
-						<div data-stat="player-deaths">
-							<i class="fa-solid fa-skull-crossbones fa-fw"></i>
-						</div>
-						<div data-stat="player-score">
-							<i class="fa-solid fa-star fa-fw"></i>
-						</div>
-					<% } else { %>
-						<div data-stat="player-score">S</div>
-						<div data-stat="player-kills">K</div>
-						<div data-stat="player-deaths">D</div>
-						<div data-stat="player-ping">P</div>
-					<% } %>
+		templates: {
+			header: ejs.compile(`
+				<div class="player-card">
+					<div class="player-name"></div>
+					<div class="player-stats">
+						<% if (icons) { %>
+							<div data-stat="player-ping">
+								<i class="fa-solid fa-signal fa-fw"></i>
+							</div>
+							<div data-stat="player-kills">
+								<i class="fa-solid fa-crosshairs fa-fw"></i>
+							</div>
+							<div data-stat="player-deaths">
+								<i class="fa-solid fa-skull-crossbones fa-fw"></i>
+							</div>
+							<div data-stat="player-score">
+								<i class="fa-solid fa-star fa-fw"></i>
+							</div>
+						<% } else { %>
+							<div data-stat="player-score">S</div>
+							<div data-stat="player-kills">K</div>
+							<div data-stat="player-deaths">D</div>
+							<div data-stat="player-ping">P</div>
+						<% } %>
+					</div>
 				</div>
-			</div>
-		`),
-		template: ejs.compile(`
-			<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
-				<div class="player-name">
-					<%= player.name %>
-					<% for (let i = 0; i < player.rank; i++) { %>
-						<i class="fa-solid fa-trophy fa-fw"></i>
-					<% } %>
+			`),
+			card: ejs.compile(`
+				<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
+					<div class="player-name">
+						<%= player.name %>
+						<% for (let i = 0; i < player.rank; i++) { %>
+							<i class="fa-solid fa-trophy fa-fw"></i>
+						<% } %>
+					</div>
+					<div class="player-stats">
+						<div data-stat="player-ping"><%= player.ping %></div>
+						<div data-stat="player-kills"><%= player.kills %></div>
+						<div data-stat="player-deaths"><%= player.deaths %></div>
+						<div data-stat="player-score"><%= player.score %></div>
+					</div>
 				</div>
-				<div class="player-stats">
-					<div data-stat="player-ping"><%= player.ping %></div>
-					<div data-stat="player-kills"><%= player.kills %></div>
-					<div data-stat="player-deaths"><%= player.deaths %></div>
-					<div data-stat="player-score"><%= player.score %></div>
-				</div>
-			</div>
-		`),
+			`),
+		},
 		useIcons: true,
 
 		render(players=[]) {
 			this.clear();
 
 			if (players.length) {
-				this.$container.innerHTML += this.template1({icons: this.useIcons});
+				this.$container.innerHTML += this.templates.header({icons: this.useIcons});
 				players.forEach(
-					(player) => this.$container.innerHTML += this.template({player})
+					(player) => this.$container.innerHTML += this.templates.card({player})
 				);
 			}
 		},
@@ -117,10 +119,10 @@ function TextUi(mode, useIcons) {
 	init();
 
 	return {
-		renderInfo(server, teams, players) {
-			console.log(server, teams);
-			_server.render(server, teams);
-			_players.render(players);
+		renderInfo(server) {
+			console.log(server, server.teams);
+			_server.render(server, server.teams);
+			_players.render(server.players);
 		},
 	};
 }

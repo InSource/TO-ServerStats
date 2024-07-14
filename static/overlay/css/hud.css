@@ -1,31 +1,19 @@
 :root {
-	/* Main params live here */
 	--game-stat-height: 394px;
-
-	--text-color-team0: #E9514F;
-	--text-color-team1: #74ACDA;
-
-	--card-width          : 330px;
-	--card-border-radius  : 7px;
-	--card-gap-between    : 4px;
-	--card-bg-color       : rgba(100, 100, 100, 0.40);
-	--card-bg-color-team0 : rgba(209,  72,  71, 0.75); /* rgba(233,81,79, 0.7); #E9514F */
-	--card-bg-color-team1 : rgba(104, 154, 196, 0.75); /* rgba(116,172,218, 0.7); #74ACDA */
-	--card-name-color     : rgb(240, 240, 240);
-	--card-stat-color     : rgb(220, 220, 220);
+	--card-width: 330px;
 }
 
 
 @media (max-width: 1200px) {
-	.top-wrapper-split {
+	.side-section {
 		flex-direction: column;
 		max-width: 33%;
 	}
 
-	.top-wrapper [data-stat] .label:after {
+	.server-info [data-stat] .label:after {
 		content: ':';
 	}
-	.top-wrapper [data-stat] br {
+	.server-info [data-stat] br {
 		display: none;
 	}
 
@@ -36,17 +24,6 @@
 }
 
 
-body {
-	margin: 0;
-	min-width: 800px;
-	background-color: #000000;
-	color: rgb(230, 230, 230);
-	font-family: Tahoma, sans-serif;
-	font-size: 21px;
-	font-weight: 600;
-	text-shadow: 1px 1px 3px #000000;
-}
-
 body[data-mode='legacy'] [data-stat='team-wins'],
 body[data-mode='legacy'] [data-stat='server-round'],
 body[data-mode='legacy'] [data-stat='team-lastwinner'],
@@ -56,12 +33,10 @@ body[data-mode='legacy'] [data-stat='player-deaths'] {
 	display: none;
 }
 
-body[data-mode='legacy'] [data-stat='server-players'] .label:after,
-body[data-mode='legacy'] [data-stat='team-kills'] .label:after {
+body[data-mode='legacy'] .server-info [data-stat] .label:after {
 	content: ':';
 }
-body[data-mode='legacy'] [data-stat='server-players'] br,
-body[data-mode='legacy'] [data-stat='team-kills'] br {
+body[data-mode='legacy'] .server-info [data-stat] br {
 	display: none;
 }
 
@@ -69,29 +44,30 @@ body[data-mode='trimmed'] {}
 
 
 /* 1. Generic server info */
-.top-wrapper {
+.server-info {
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
 	padding-top: 4px;
+	box-sizing: border-box;
 	height: var(--game-stat-height);
 	max-height: var(--game-stat-height);
 	text-align: center;
 }
-.top-wrapper > div {
+.server-info > div {
 	flex: 1;
 	margin: 0 10px;
 }
-.top-wrapper > div > div {
+.server-info > div > div {
 	flex: 1;
 }
 
-.top-wrapper-split {
+.side-section {
 	display: flex;
 	width: 100%;
 	white-space: nowrap;
 }
-.top-wrapper-split > div {
+.side-section > div {
 	flex: 1;
 	margin: 0 5px 5px;
 }
@@ -104,59 +80,24 @@ body[data-mode='trimmed'] {}
 	white-space: nowrap;
 }
 
-.top-wrapper span[data-team='0'] { color: var(--text-color-team0); }
-.top-wrapper span[data-team='1'] { color: var(--text-color-team1); }
-
 
 /* 2. Per-player stats */
-.main-wrapper {
+.players-wrapper {
 	display: flex;
 	justify-content: space-between;
 	padding: 0 22px;
 	height: calc(100vh - var(--game-stat-height));
 }
 
-.main-wrapper-split {
-	display: flex;
-	flex-direction: column;
-	/*width: 50%;*/
-}
-
 .player-card {
-	margin-bottom: var(--card-gap-between);
 	padding: 1px 0 2px 4px;
-	width: var(--card-width);
-	background-color: var(--card-bg-color);
-	border: 2px solid rgba(0, 0, 0, 0.25);
-	border-radius: var(--card-border-radius);
-	text-align: left;
-	text-shadow: 1px 1px 5px #000000;
 }
-.player-card[data-team='0'].alive { background-color: var(--card-bg-color-team0); }
-.player-card[data-team='1'].alive { background-color: var(--card-bg-color-team1); }
 
 .player-name {
 	display: flex;
 	height: 29px;
-	overflow: hidden;
-	color: var(--card-name-color);
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-.player-name > div {
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .player-stats {
-	display: flex;
 	justify-content: space-between;
-	overflow: hidden;
-	color: var(--card-stat-color);
-	font-size: 20px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-.player-stats > div {
-	flex: 1;
 }

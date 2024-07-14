@@ -4,7 +4,7 @@ function HudUi(mode, useIcons) {
 		document.body.dataset.mode = mode;
 		_teams.useIcons = useIcons;
 
-		_server.$container  = document.querySelector('.top-wrapper');
+		_server.$container  = document.querySelector('.server-info');
 		_teams.$containerT  = document.querySelector('.card-container[data-team="0"]');
 		_teams.$containerSF = document.querySelector('.card-container[data-team="1"]');
 	}
@@ -12,14 +12,14 @@ function HudUi(mode, useIcons) {
 	const _server = {
 		$container: null,
 		template: ejs.compile(`
-			<div class="top-wrapper-split">
+			<div class="side-section">
 				<div data-stat="server-players">
 					<span class="label">Players</span>
 					<br>
 					<%= server.numplayers %> / <%= server.maxplayers %>
 				</div>
 				<div data-stat="server-map">
-					<%= server.map %>
+					<%= server.mapname %>
 				</div>
 			</div>
 			<div>
@@ -33,7 +33,7 @@ function HudUi(mode, useIcons) {
 					Round: <%= server.roundnumber %> - <%= server.gameperiod %>
 				</div>
 			</div>
-			<div class="top-wrapper-split">
+			<div class="side-section">
 				<div data-stat="team-lastwinner">
 					<span class="label">Last Win</span>
 					<br>
@@ -68,12 +68,10 @@ function HudUi(mode, useIcons) {
 		template: ejs.compile(`
 			<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
 				<div class="player-name">
-					<div>
-						<%= player.name %>
-						<% for (let i = 0; i < player.rank; i++) { %>
-							<i class="fa-solid fa-trophy fa-fw"></i>
-						<% } %>
-					</div>
+					<%= player.name %>
+					<% for (let i = 0; i < player.rank; i++) { %>
+						<i class="fa-solid fa-trophy fa-fw"></i>
+					<% } %>
 				</div>
 				<div class="player-stats">
 					<% if (icons) { %>
@@ -122,10 +120,10 @@ function HudUi(mode, useIcons) {
 	init();
 
 	return {
-		renderInfo(server, teams) {
-			console.log(server, teams);
-			_server.render(server, teams);
-			_teams.render(teams);
+		renderInfo(server) {
+			console.log(server, server.teams);
+			_server.render(server, server.teams);
+			_teams.render(server.teams);
 		},
 	};
 }

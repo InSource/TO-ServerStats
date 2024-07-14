@@ -35,8 +35,8 @@ To do:
 
 Considerations:
 - Should be there any indication on the request fail?
-- Should we stop request data no matter what or stop after certain retry count?
-- When server doesn't return some fields should I use some defaults or just show `N/A`?
+- Should we request data no matter what or stop after certain retry count?
+- Should we use defaults rather than `N/A` for absent fields?
 
 
 
