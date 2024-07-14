@@ -1,6 +1,7 @@
 :root {
-	--overlay-width: 420px;
-	--card-width: inherit;
+	--overlay-width : 420px;
+	--card-width  : inherit;
+	--card-height : 32px;
 }
 
 
