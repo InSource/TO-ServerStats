@@ -45,7 +45,7 @@
 						<select name="mode" data-formctl="2x">
 							<optgroup label="HUD">
 								<option value="hud-main">Main</option>
-								<option value="hud-trimmed">Trimmed</option>
+								<option value="hud-trimmed" disabled>Trimmed</option>
 								<option value="hud-legacy">Legacy</option>
 							</optgroup>
 							<optgroup label="Text">
@@ -63,17 +63,17 @@
 						<span></span>
 						<input name="ranks" type="checkbox" checked> Player trophies
 					</label>
-					<label>
+					<label style="margin-top: 10px;">
 						<span></span>
-						<button type="submit">Open</button>
 						<button type="button" id="showPreview">Preview</button>
+						<button type="submit">Copy URL</button>
 					</label>
 				</form>
 			</div>
 
 			<div class="flex-1" id="preview">
 				<iframe></iframe>
-				<span class="tip">*hold and drag the lower right corner to resize</span>
+				<span>*hold and drag the lower right corner to resize</span>
 			</div>
 		</div>
 	</body>

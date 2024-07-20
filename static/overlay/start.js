@@ -1,60 +1,64 @@
 const ui = {
 	init() {
 		const self = this;
-		const $form = document.getElementById('queryForm');
-		this.search.$form  = $form;
-		this.search.$host  = $form.elements.ip;
-		this.search.$port  = $form.elements.port;
-		this.search.$mode  = $form.elements.mode;
-		this.search.$icons = $form.elements.icons;
-		this.search.$ranks = $form.elements.ranks;
-		this.search.$rate  = $form.elements.rate;
 
-		this.search.$mode.onchange = function(e) {
+		const $form = document.getElementById('queryForm');
+		self.settings.$form  = $form;
+		self.settings.$host  = $form.elements.ip;
+		self.settings.$port  = $form.elements.port;
+		self.settings.$mode  = $form.elements.mode;
+		self.settings.$icons = $form.elements.icons;
+		self.settings.$ranks = $form.elements.ranks;
+		self.settings.$rate  = $form.elements.rate;
+
+		self.settings.$mode.onchange = function(e) {
 			if (this.value.includes('legacy')) {
-				self.search.$rate.min = 10;
-				self.search.$rate.max = 60;
-				self.search.$rate.value = 15;
+				self.settings.$rate.min = 10;
+				self.settings.$rate.max = 60;
+				self.settings.$rate.value = 15;
 			} else {
-				self.search.$rate.min = 1;
-				self.search.$rate.max = 20;
-				self.search.$rate.value = 2;
+				self.settings.$rate.min = 1;
+				self.settings.$rate.max = 20;
+				self.settings.$rate.value = 2;
 			}
 		}
 
-		this.search.$form.onsubmit = function(e) {
+		self.settings.$form.onsubmit = function(e) {
 			e.preventDefault();
-			window.open(self.search.getUrl());
+			self.url.copy();
 		}
 
-		this.preview.$iframe = document.querySelector('#preview iframe');
-		this.preview.$showBtn = document.getElementById('showPreview');
+		self.preview.$iframe = document.querySelector('#preview iframe');
+		self.preview.$showBtn = document.getElementById('showPreview');
 
-		this.preview.$showBtn.onclick = function(e) {
-			self.preview.show(self.search.getUrl());
+		self.preview.$showBtn.onclick = function(e) {
+			self.preview.show(self.url.get());
 		};
 	},
 
-	preview: {
-		$iframe: null,
-		$showBtn: null,
-
-		show(url) {
-			this.$iframe.src = url;
+	url: {
+		get() {
+			const {ip, port, type, mode, icons, ranks, rate} = ui.settings.getParams();
+			const params = {ip, port, timeout: rate, mode};
+			if (icons) { params.icons = true; }
+			if (ranks) { params.ranks = true; }
+			return `${location.href}/../obs_${type}_overlay.html?${new URLSearchParams(params)}`;
 		},
-		hide() {
 
+		copy() {
+			console.log(this.get());
+			navigator.clipboard.writeText(this.get());
 		},
 	},
 
-	search: {
-		$form  : null,
-		$host  : null,
-		$port  : null,
-		$mode  : null,
-		$icons : null,
-		$ranks : null,
-		$rate  : null,
+	settings: {
+		$form   : null,
+		$host   : null,
+		$port   : null,
+		$mode   : null,
+		$icons  : null,
+		$ranks  : null,
+		$rate   : null,
 
 		getParams() {
 			const [type, mode] = this.$mode.value.split('-');
@@ -68,24 +72,20 @@ const ui = {
 				rate  : this.$rate.value,
 			};
 		},
-		getUrl() {
-			const {ip, port, type, mode, icons, ranks, rate} = ui.search.getParams();
-			const params = {ip, port, timeout: rate, mode};
-			if (icons) { params.icons = true; }
-			if (ranks) { params.ranks = true; }
-			return `${location.href}/../obs_${type}_overlay.html?${new URLSearchParams(params)}`;
-		},
+	},
+
+	preview: {
+		$iframe: null,
+		$showBtn: null,
+
+		show(url) {
+			this.$iframe.src = url;
+		}
 	},
 };
 
 
-function initialize() {
-
-}
-
-
 window.onload = function() {
 	ui.init();
-	console.log(ui.search.getParams());
-	initialize();
+	console.log(ui.settings.getParams());
 };

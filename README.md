@@ -5,6 +5,7 @@ Tactical Ops related staff I've recreated and/or refactored 🙄
 
 -----
 OBS [overlays](https://tactical-ops.eu/tactical-ops-tv-overlay.php) used for streaming (by _jo0Oey_)
+- `obs_overlay.html` — tune the look 👌🏻
 - `obs_hud_overlay.html` — HUD
 - `obs_text_overlay.html` — text (but also fancy)
 
