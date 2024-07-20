@@ -1,14 +1,15 @@
 :root {
-	--overlay-width : 420px;
-	--card-width  : inherit;
-	--card-height : 32px;
+	--overlay-width   : 420px;
+	--card-width      : inherit;
+	--card-height     : 32px;
+	--card-stat-width : calc(4 * 45px);
 }
 
 
 body[data-mode='basic'],
 body[data-mode='legacy'] {
-	--overlay-width: 350px;
-	--card-stat-width: 90px;
+	--overlay-width   : 350px;
+	--card-stat-width : calc(2 * 45px);
 }
 
 body[data-mode='basic'] [data-stat='team-wins'],

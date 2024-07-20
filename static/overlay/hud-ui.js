@@ -1,8 +1,9 @@
-function HudUi(mode, useIcons) {
+function HudUi(mode, useIcons, showRanks) {
 	function init() {
 		mode = mode || 'main';
 		document.body.dataset.mode = mode;
-		_teams.useIcons = useIcons;
+		_teams.useIcons  = (useIcons === true);
+		_teams.showRanks = (showRanks === true);
 
 		_server.$container  = document.querySelector('.server-info');
 		_teams.$containerT  = document.querySelector('.card-container[data-team="0"]');
@@ -69,8 +70,10 @@ function HudUi(mode, useIcons) {
 			<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
 				<div class="player-name">
 					<%= player.name %>
-					<% for (let i = 0; i < player.rank; i++) { %>
-						<i class="fa-solid fa-trophy fa-fw"></i>
+					<% if (ranks) { %>
+						<% for (let i = 0; i < player.rank; i++) { %>
+							<i class="fa-solid fa-trophy fa-fw"></i>
+						<% } %>
 					<% } %>
 				</div>
 				<div class="player-stats">
@@ -96,17 +99,19 @@ function HudUi(mode, useIcons) {
 				</div>
 			</div>
 		`),
-		useIcons: true,
+		useIcons: false,
+		showRanks: false,
 
 		render(teams) {
 			this.clear();
 
 			if (teams.length) {
+				const settings = {icons: this.useIcons, ranks: this.showRanks};
 				teams[0].players.forEach(
-					(player) => this.$containerT.innerHTML += this.template({player, icons: this.useIcons})
+					(player) => this.$containerT.innerHTML += this.template({player, ...settings})
 				);
 				teams[1].players.forEach(
-					(player) => this.$containerSF.innerHTML += this.template({player, icons: this.useIcons})
+					(player) => this.$containerSF.innerHTML += this.template({player, ...settings})
 				);
 			}
 		},

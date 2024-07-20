@@ -1,0 +1,27 @@
+input {
+  outline: none;
+}
+input:invalid {
+  border-color: red;
+}
+input:invalid:focus {
+  caret-color: red;
+  box-shadow: 0 0 6px #F00D;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.flex-row-nowrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.flex-0 { flex: 0; }
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.flex-3 { flex: 3; }
+.flex-4 { flex: 4; }
+.flex-5 { flex: 5; }

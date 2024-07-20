@@ -7,6 +7,7 @@ class PageUrl {
 			timeout : url.searchParams.get('timeout'),
 			mode    : url.searchParams.get('mode'),
 			icons   : url.searchParams.get('icons'),
+			ranks   : url.searchParams.get('ranks'),
 		}
 	}
 
@@ -199,12 +200,20 @@ class ServerDetails {
 
 
 function initialize(OverlayUi) {
-	let {ip, port, timeout, mode, icons} = PageUrl.parse();
-	timeout = parseInt(timeout) || (mode === 'legacy' ? 20 : 2);
+	let {ip, port, timeout, mode, icons, ranks} = PageUrl.parse();
+	// console.log(PageUrl.parse());
+
+	// You don't need to query server details more frequently than that
+	const defaultTimeout = (mode === 'legacy') ? 15 : 2;
+	timeout = parseFloat(timeout);
+	timeout = Number.isNaN(timeout)
+				? defaultTimeout
+				: Math.min(defaultTimeout, timeout);
 	icons = (icons === 'true');
+	ranks = (ranks === 'true');
 
 	window.onload = function() {
-		const ui = new OverlayUi(mode, icons);
+		const ui = new OverlayUi(mode, icons, ranks);
 
 		const maxRetry = 5;
 		let attempts = maxRetry;

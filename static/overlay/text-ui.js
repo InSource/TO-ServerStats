@@ -1,8 +1,9 @@
-function TextUi(mode, useIcons) {
+function TextUi(mode, useIcons, showRanks) {
 	function init() {
 		mode = mode || 'full';
 		document.body.dataset.mode = mode;
-		_players.useIcons = useIcons;
+		_players.useIcons  = (useIcons === true);
+		_players.showRanks = (showRanks === true);
 
 		_server.$container  = document.querySelector('.server-info');
 		_players.$container = document.querySelector('.card-container');
@@ -73,10 +74,10 @@ function TextUi(mode, useIcons) {
 								<i class="fa-solid fa-star fa-fw"></i>
 							</div>
 						<% } else { %>
-							<div data-stat="player-score">S</div>
+							<div data-stat="player-ping">P</div>
 							<div data-stat="player-kills">K</div>
 							<div data-stat="player-deaths">D</div>
-							<div data-stat="player-ping">P</div>
+							<div data-stat="player-score">S</div>
 						<% } %>
 					</div>
 				</div>
@@ -85,8 +86,10 @@ function TextUi(mode, useIcons) {
 				<div class="player-card <%= (player.isDead) ? 'dead' : 'alive' %>" data-team="<%= player.team %>">
 					<div class="player-name">
 						<%= player.name %>
-						<% for (let i = 0; i < player.rank; i++) { %>
-							<i class="fa-solid fa-trophy fa-fw"></i>
+						<% if (ranks) { %>
+							<% for (let i = 0; i < player.rank; i++) { %>
+								<i class="fa-solid fa-trophy fa-fw"></i>
+							<% } %>
 						<% } %>
 					</div>
 					<div class="player-stats">
@@ -98,7 +101,8 @@ function TextUi(mode, useIcons) {
 				</div>
 			`),
 		},
-		useIcons: true,
+		useIcons: false,
+		showRanks: false,
 
 		render(players=[]) {
 			this.clear();
@@ -106,7 +110,7 @@ function TextUi(mode, useIcons) {
 			if (players.length) {
 				this.$container.innerHTML += this.templates.header({icons: this.useIcons});
 				players.forEach(
-					(player) => this.$container.innerHTML += this.templates.card({player})
+					(player) => this.$container.innerHTML += this.templates.card({player, ranks: this.showRanks})
 				);
 			}
 		},

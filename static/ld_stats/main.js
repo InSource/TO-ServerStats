@@ -37,14 +37,13 @@ const ui = {
 		this.search.$host    = $form.elements.ip;
 		this.search.$port    = $form.elements.port;
 		this.search.$timeout = $form.elements.timeout;
+		this.loader.$element = document.getElementById('loader');
+
 		this.search.$form.onsubmit = function(e) {
 			e.preventDefault();
-
 			query = ui.search.getParams();
 			PageUrl.update(query);
-			// PageUrl.update(query, 'https://serverstatus.tacops.de/index.php');
 		}
-		this.loader.$element = document.getElementById('loader');
 
 		this.serverInfo.$container = document.getElementById('gameinfo');
 		this.teams.$container      = document.getElementById('teaminfo');

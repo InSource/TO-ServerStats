@@ -25,8 +25,8 @@ To do:
     - [x] regular
     - [x] with icons! (add `icons=true` to the url)
   - [ ] Trimmed — less information available, e.g., no Player Status, Round Wins, etc (powered by LuckyDog API)
-    - [ ] [TO3.4 Version](https://tactical-ops.eu/totv/overlays/ld_hud_to340.php)
-    - [ ] [TO3.5 Version](https://tactical-ops.eu/totv/overlays/ld_hud_to3t0.php)
+    - [ ] [TO3.4 Version](https://tactical-ops.eu/totv/overlays/ld_hud_to340.php?ip=81.169.138.37&port=9777)
+    - [ ] [TO3.5 Version](https://tactical-ops.eu/totv/overlays/ld_hud_to350.php?ip=81.169.138.37&port=9777)
   - [x] [Legacy](https://tactical-ops.eu/totv/overlays/333n_hud.php?ip=81.169.138.37&port=9777) — 5min update rate and is missing a lot of info (powered by 333 Networks API)
 - Add text overlay
   - [x] [Basic](https://tactical-ops.eu/totv/overlays/text/ld_text.php?ip=81.169.138.37&port=9777) (powered by LuckyDog API)
